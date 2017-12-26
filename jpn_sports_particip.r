@@ -75,12 +75,13 @@ jpn_sports_df <- jpn_sports_df %>%
   mutate_at(vars(est_population:Other), funs(as.numeric)) %>% 
   mutate_at(vars(est_population:Other), funs(. * 1000)) %>% glimpse()
 
+library(forcats)  
+
 jpn_sports_df <- jpn_sports_df %>% 
   mutate(gender = as_factor(gender),
          #region = as_factor(region),
          densely_inhabited_district = as_factor(densely_inhabited_district)) 
 
-library(forcats)  
 
 class(jpn_sports_df$gender)
 
@@ -132,3 +133,74 @@ jpn_sports_df %>%
 jpn_sports_df %>% 
   select(region) %>% 
   str_extract_all("\\-to")
+
+jpn_sports_df %>% 
+  select(region) %>% 
+  str_replace_all("\\d{2}\\_", "") %>% 
+  str_replace_all("\\-ken", "") %>% 
+  str_replace_all("\\-fu", "") %>% 
+  str_replace_all("\\-to", "")
+
+
+jpn_sports_df %>% 
+  mutate(region = region %>% str_replace_all("\\d{2}\\_", "")) %>% 
+  mutate(region = region %>% str_replace_all("\\-ken", "")) %>% 
+  mutate(region = region %>% str_replace_all("\\-fu", "")) %>% 
+  mutate(region = region %>% str_replace_all("\\-to", ""))
+
+jpn_sports_df %>% 
+  mutate(region = region %>% str_replace_all("\\d{2}\\_", ""),
+         region = region %>% str_replace_all("\\-ken", ""),
+         region = region %>% str_replace_all("\\-fu", ""),
+         region = region %>% str_replace_all("\\-to", ""))
+
+# do same with DIDs
+
+jpn_sports_df %>% 
+  mutate(densely_inhabited_district = densely_inhabited_district %>% 
+           str_replace("\\d\\_", ""),
+         densely_inhabited_district = as_factor(densely_inhabited_district))
+
+
+# prop_baseball
+
+jpn_sports_df %>% 
+  mutate(prop_baseball = baseball/total_all_sport) %>% 
+  select(region, gender, prop_baseball) %>% 
+  arrange(desc(prop_baseball))
+
+# prop_soccer
+jpn_sports_df %>% 
+  mutate(prop_soccer = soccer/total_all_sport) %>% 
+  select(region, gender, prop_soccer) %>% 
+  arrange(desc(prop_soccer))
+
+jpn_sports_df %>% 
+  mutate(prop_soccer = soccer/total_all_sport) %>% 
+  select(region, gender, prop_soccer) %>% 
+  filter(gender == "Female") %>% 
+  arrange(desc(prop_soccer))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
