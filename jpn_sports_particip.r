@@ -4,7 +4,13 @@ library(readxl)
 library(stringr)
 library(tidyr)
 
-getwd()
+
+### 
+# 11.27.18
+# REDO this section to grab data through e-stat API 
+# use https://github.com/yutannihilation/estatapi  ???
+# do everything through R!!!
+
 jpn_sports <- read_xlsx("jpn_sports_participation.xlsx", skip = 14)
 
 
@@ -93,6 +99,8 @@ jpn_sports_df$gender <- jpn_sports_df$gender %>%
              "Male" = "1_Male", 
              "Female" = "2_Female") 
 
+jpn_sports_df$gender
+
 jpn_sports_df$region
 
 jpn_sports_df %>% select(region) %>% purrr::map(levels)
@@ -148,32 +156,38 @@ jpn_sports_df %>%
   mutate(region = region %>% str_replace_all("\\-fu", "")) %>% 
   mutate(region = region %>% str_replace_all("\\-to", ""))
 
-jpn_sports_df %>% 
+jpn_sports_df <- jpn_sports_df %>% 
   mutate(region = region %>% str_replace_all("\\d{2}\\_", ""),
          region = region %>% str_replace_all("\\-ken", ""),
          region = region %>% str_replace_all("\\-fu", ""),
          region = region %>% str_replace_all("\\-to", ""))
 
+glimpse(jpn_sports_df)
+
 # do same with DIDs
 
-jpn_sports_df %>% 
+jpn_sports_df <- jpn_sports_df %>% 
   mutate(densely_inhabited_district = densely_inhabited_district %>% 
            str_replace("\\d\\_", ""),
          densely_inhabited_district = as_factor(densely_inhabited_district))
 
+glimpse(jpn_sports_df)
 
 # prop_baseball
 
 jpn_sports_df %>% 
   mutate(prop_baseball = baseball/total_all_sport) %>% 
-  select(region, gender, prop_baseball) %>% 
-  arrange(desc(prop_baseball))
+  filter(gender == "Male" & densely_inhabited_district == "Total") %>% 
+  select(region, prop_baseball) %>% 
+  arrange(desc(prop_baseball)) %>% 
+  head(5)
 
 # prop_soccer
 jpn_sports_df %>% 
   mutate(prop_soccer = soccer/total_all_sport) %>% 
   select(region, gender, prop_soccer) %>% 
-  arrange(desc(prop_soccer))
+  arrange(desc(prop_soccer)) %>% 
+  head(5)
 
 jpn_sports_df %>% 
   mutate(prop_soccer = soccer/total_all_sport) %>% 
@@ -182,19 +196,43 @@ jpn_sports_df %>%
   arrange(desc(prop_soccer))
 
 
+jpn_sports_total <- jpn_sports_df %>% 
+  filter(region != "Japan" & gender == "Total" & densely_inhabited_district == "Total")
+
+save(jpn_sports_total, file = "jpn_sports_total.Rdata")
+
+library(ggplot2)
+
+jpn_sports_total %>% 
+  ggplot(aes(reorder(region, total_all_sport), total_all_sport)) +
+  geom_col() +
+  scale_y_continuous(breaks = scales::pretty_breaks(10)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30))
 
 
+#### ---- TOTALS, Total, All Gender
 
+jpn_sports_total %>% 
+  mutate(asdf = total_all_sport/est_population) %>% 
+  select(region, asdf) %>%  
+  arrange(desc(asdf)) %>% 
+  head(5)
 
+jpn_sports_total %>% 
+  mutate(asdf = total_all_sport/est_population) %>% 
+  select(region, asdf) %>%  
+  arrange(desc(asdf)) %>% 
+  tail(5)
 
+# - Soccer
+jpn_sports_total %>% 
+  mutate(asdf = soccer/est_population) %>% 
+  select(region, asdf) %>%  
+  arrange(desc(asdf)) %>% 
+  head(10)
 
-
-
-
-
-
-
-
+# Participation rates in 78-2 are rounded to nearest 10th percents...
 
 
 

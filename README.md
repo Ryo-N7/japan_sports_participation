@@ -1,5 +1,6 @@
 # japan_sports_participation
-analysis Japan Sports Participation data (http://www.e-stat.go.jp/SG1/estat/List.do?bid=000001083767&amp;cycode=0)
+- Analysis of Japan Sports Participation data 
+- Source: スポーツ (地域), 78-1 (https://www.stat.go.jp/data/shakai/2016/kekka.html)
 
 
 Region
